@@ -20,9 +20,8 @@ def circle(y, x, n, m):
     for i in range(y2,y1,-1):
         elements.append(a[i][x1])
 
-    rotate = k % len(elements)
 
-    elements = elements[rotate:] + elements[:rotate]
+    elements = elements[1:] + elements[:1]
     idx = 0
 
     for j in range(x1, x2):
@@ -43,9 +42,8 @@ def circle(y, x, n, m):
 
     circle(y + 1, x + 1, n - 2, m - 2)
 
-
-
-circle(0, 0, n, m)
+for _ in range(k):
+    circle(0, 0, n, m)
 
 for rows in a:
     print(*rows, sep=' ')
