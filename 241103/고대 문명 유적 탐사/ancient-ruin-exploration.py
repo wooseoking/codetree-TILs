@@ -96,7 +96,7 @@ for _ in range(K):
 
     if not result:break
 
-    result.sort(key=lambda x:(-x[0],x[1],x[3],-x[2]))
+    result.sort(key=lambda x:(-x[0],x[1],x[3],x[2]))
     Kvalue = 0
     # 탐사 성공! -> 유물 획득 반복
     value,c,i,j,pathList = result[0]
