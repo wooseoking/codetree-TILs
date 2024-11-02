@@ -7,26 +7,32 @@ def inside(y,x):
 
 N = 5
 
-# i,j 기준으로 90 회전한 배열
-def rotate90(map,Y,X):
+
+# 각도에 따른 회전 함수
+def rotate(map, Y, X, angle):
     n = 3
     newA = copy.deepcopy(map)
 
-    threeByThree = [[0]*n for _ in range(n)]
-    rotatedThreeByTree = copy.deepcopy(threeByThree)
+    # 3x3 부분 추출
+    threeByThree = [[map[y][x] for x in range(X - 1, X + 2)] for y in range(Y - 1, Y + 2)]
 
-    for y in range(Y - 1, Y + 1 + 1):
-        for x in range(X -1 , X + 1 + 1):
-            threeByThree[y - (Y - 1)][x - (X - 1)] = map[y][x]
-
+    # 각도에 따른 회전
+    rotatedThreeByThree = [[0] * n for _ in range(n)]
     for i in range(n):
         for j in range(n):
-            rotatedThreeByTree[i][j] = threeByThree[n - 1 -j][i]
+            if angle == 90:
+                rotatedThreeByThree[i][j] = threeByThree[n - 1 - j][i]
+            elif angle == 180:
+                rotatedThreeByThree[i][j] = threeByThree[n - 1 - i][n - 1 - j]
+            elif angle == 270:
+                rotatedThreeByThree[i][j] = threeByThree[j][n - 1 - i]
+            else:
+                rotatedThreeByThree[i][j] = threeByThree[i][j]
 
-    for i in range(Y - 1,Y + 1 + 1):
-        for j in range(X - 1 , X + 1 + 1):
-            newA[i][j] = rotatedThreeByTree[i - (Y - 1)][j - (X - 1)]
-
+    # 회전된 3x3 부분을 newA에 적용
+    for i in range(n):
+        for j in range(n):
+            newA[Y - 1 + i][X - 1 + j] = rotatedThreeByThree[i][j]
 
     return newA
 
@@ -68,7 +74,7 @@ def getValue(map):
     return value,pathList
 
 # 유물 획득 (현재 맵에서 유적지 새로 쓰기)
-def getParticles(map,pathList):
+def writeParticles(map,pathList):
     global particlesIdx
     for y,x in pathList:
         map[y][x] = particles[particlesIdx]
@@ -89,25 +95,26 @@ for _ in range(K):
 
     for i in range(1,N-1):
         for j in range(1,N-1):
-            for c in range(3):
-                newA = rotate90(a,i,j)
-                value,pathList = getValue(newA)
-                result.append([value,c,i,j,pathList])
+
+            for angle in [90,180,270]:
+                rotatedA = rotate(a,i,j,angle)
+                value,pathList = getValue(rotatedA)
+                if value > 0 :
+                    result.append((value,angle,i,j,pathList))
 
     if not result:break
 
     result.sort(key=lambda x:(-x[0],x[1],x[3],x[2]))
-    Kvalue = 0
+    maxValue,angle,i,j,pathList = result[0]
     # 탐사 성공! -> 유물 획득 반복
-    value,c,i,j,pathList = result[0]
-    a = rotate90(map = a,Y = i,X = j)
-
+    a = rotate(a,i,j,angle)
+    Kvalue = 0
 
     while True:
         value,pathList = getValue(a)
         if not pathList:break
         # 새로운 particle 로 채우기
-        getParticles(a,pathList)
+        writeParticles(a,pathList)
         Kvalue += value
 
     if Kvalue == 0 :break
